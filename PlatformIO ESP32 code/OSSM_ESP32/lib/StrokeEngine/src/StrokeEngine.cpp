@@ -198,10 +198,10 @@ float StrokeEngine::getSensation() {
 bool StrokeEngine::setPattern(int patternIndex, bool applyNow = false) {
     // Check wether pattern Index is in range
     if ((patternIndex < patternTableSize) && (patternIndex >= 0)) {
-        _patternIndex = patternIndex;
 
         // Inject current motion parameters into new pattern
         if (xSemaphoreTake(_patternMutex, portMAX_DELAY) == pdTRUE) {
+            _patternIndex = patternIndex;
             patternTable[_patternIndex]->setSpeedLimit(_maxStepPerSecond, _maxStepAcceleration, _motor->stepsPerMillimeter);
             patternTable[_patternIndex]->setTimeOfStroke(_timeOfStroke);
             patternTable[_patternIndex]->setStroke(_stroke);
@@ -218,12 +218,12 @@ bool StrokeEngine::setPattern(int patternIndex, bool applyNow = false) {
 #endif
             }
 
+            // Reset index counter
+            _index = 0;
+
             // give back mutex
             xSemaphoreGive(_patternMutex);
         }
-
-        // Reset index counter
-        _index = 0;
 
 #ifdef DEBUG_TALKATIVE
     Serial.println("setPattern: [" + String(_patternIndex) + "] " + patternTable[_patternIndex]->getName());
